@@ -8,13 +8,20 @@
     <script src="https://unpkg.com/moralis/dist/moralis.js" crossorigin="true"></script>
 </head>
 <body>
+    <div id="game-wrapper">
+        <div id="status"><span class="title">LeaderBoard</span></div>
+        <canvas tabindex="1" id="cvs"></canvas>
+    </div>
     <div id="start-menu-wrapper">
         <div id="start-menu">
             <h2>Welcome</h2>
             <button id="connect-btn" class="btn">Connect Wallet</button>
             <button id="skin-btn" class="btn">Set Skin</button>
+            <div id="skin-container"></div>
+            <button id="start" class="btn">Play</button>
         </div>
     </div>
+    <script src="http://localhost:3001/socket.io/socket.io.js"></script>
     <script src="js/app.js"></script>
 </body>
 
