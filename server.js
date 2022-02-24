@@ -717,6 +717,6 @@ setInterval(sendUpdates, 1000 / c.networkUpdateFactor);
 
 app.use(express.static(path.join(__dirname, 'public')))
 
-const PORT = 3001 || process.env.PORT;
+const PORT = process.env.PORT || 3001;
 
 server.listen(PORT, () => console.log(`Server running on port ${PORT}`))
