@@ -2,12 +2,39 @@ const serverUrl = "https://srls43madnoh.usemoralis.com:2053/server";
 const appId = "maesHrsIV3j1eWGZG4FNj6wE33cSnvIjEjy9tbd7";
 Moralis.start({ serverUrl, appId });
 
+const skinBtn = document.querySelector('#skin-btn')
+const startBtn = document.querySelector('#start')
+const modal = document.querySelector('#skinsModal')
+const closeBtn = document.querySelector("#closeBtn")
+const skinContainer = document.querySelector("#skin-container")
 
+closeBtn.addEventListener('click', closeModal)
+
+window.addEventListener('click', outsideClick) 
+
+function outsideClick(e) {
+    if(e.target == modal) {
+        closeModal()
+    }
+}
+
+function closeModal() {
+    modal.style.display = "none"
+    while (skinContainer.firstChild) {
+        skinContainer.firstChild.remove()
+    }
+}
+
+function selectSkin(e) {
+
+    console.log(e.target)
+    closeModal()
+
+}
 
 let wallet
 let skins = []
 let backdrop
-let modal
 let socket
 
 function shortAddress(addr) {
@@ -34,13 +61,13 @@ async function connectWallet() {
     const ensOrAddress = await getENSorAddress(wallet)
 
     this.textContent = ensOrAddress
+
+    skinBtn.style.display = "block"
+
   }
 
 async function fetchNFTs() {
-    backdrop = document.createElement("div")
-    backdrop.classList.add("backdrop")
-    backdrop.addEventListener('click', closeModal)
-    // document.body.insertBefore(backdrop)
+    
 
     let data = await Moralis.Web3API.account.getNFTs({ chain: "rinkeby" })
 
@@ -54,9 +81,12 @@ async function fetchNFTs() {
             .then(data => {
                 const image = document.createElement("img")
                 image.src = fixURL(data.image)
-                document.querySelector("#skin-container").appendChild(image)
+                image.addEventListener('click', selectSkin)
+                skinContainer.appendChild(image)
         })
     })
+
+    modal.style.display = "block"
 }
 
 
@@ -68,9 +98,7 @@ function fixURL(url) {
     }
 }
 
-function closeModal() {
 
-}
 
 let connectButton = document.getElementById('connect-btn')
 
@@ -517,13 +545,16 @@ function drawPlayers(order) {
         var points = 30 + ~~(cellCurrent.mass/5);
         var increase = Math.PI * 2 / points;
 
-        resizeSkin(cellCurrent.radius)
+        
 
-        console.log(img.width)
-        console.log('hey')
+        skinCanvas.width = cellCurrent.radius
+        skinCanvas.height = cellCurrent.radius
+
+        skinGraph.drawImage(img, cellCurrent.x, cellCurrent.y, img.height,img.width)
+
 
         graph.strokeStyle = 'hsl(' + userCurrent.hue + ', 100%, 45%)';
-        graph.fillStyle = graph.createPattern(img, 'no-repeat')
+        graph.fillStyle = graph.createPattern(skinCanvas, 'repeat')
         // graph.fillStyle = 'hsl(' + userCurrent.hue + ', 100%, 50%)';
         graph.lineWidth = playerConfig.border;
 
