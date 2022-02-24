@@ -63,6 +63,7 @@ async function connectWallet() {
     this.textContent = ensOrAddress
 
     skinBtn.style.display = "block"
+    startBtn.style.display = "block"
 
   }
 
