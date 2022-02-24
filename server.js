@@ -252,6 +252,7 @@ io.on('connection', socket => {
 
     socket.on('gotit', function (player) {
         console.log('[INFO] Player ' + player.name + ' connecting!');
+        console.log(player.skin)
 
         if (util.findIndex(users, player.id) > -1) {
             console.log('[INFO] Player ID is already connected, kicking.');

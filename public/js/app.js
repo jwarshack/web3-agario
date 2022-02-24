@@ -2,11 +2,14 @@ const serverUrl = "https://srls43madnoh.usemoralis.com:2053/server";
 const appId = "maesHrsIV3j1eWGZG4FNj6wE33cSnvIjEjy9tbd7";
 Moralis.start({ serverUrl, appId });
 
+const parser = new DOMParser()
+
 const skinBtn = document.querySelector('#skin-btn')
 const startBtn = document.querySelector('#start')
 const modal = document.querySelector('#skinsModal')
 const closeBtn = document.querySelector("#closeBtn")
 const skinContainer = document.querySelector("#skin-container")
+const selectedSkin = document.querySelector("#nft")
 
 closeBtn.addEventListener('click', closeModal)
 
@@ -27,7 +30,7 @@ function closeModal() {
 
 function selectSkin(e) {
 
-    console.log(e.target)
+    selectedSkin.src = e.target.src
     closeModal()
 
 }
@@ -53,7 +56,15 @@ async function getENSorAddress(addr) {
     return result.name
 }
 async function connectWallet() {
-    let user = await Moralis.authenticate({ signingMessage: "Welcome to Web3 Agario!" })
+
+    connectButton.innerHTML = `<div class="loader"></div>`
+    let user
+    try {
+       user = await Moralis.authenticate({ signingMessage: "Welcome to Web3 Agario!" })
+
+    } catch(error) {
+        connectButton.textContent = "Connect Wallet"
+    }
 
     const addr = user.get("ethAddress")
     wallet = addr
@@ -362,7 +373,7 @@ function setupSocket(socket) {
         player = playerSettings;
         player.name = global.playerName;
         player.screenWidth = global.screenWidth;
-        player.skin = skinCanvas
+        player.skin = global.playerSkin
         player.screenHeight = global.screenHeight;
         player.target = window.canvas.target;
         global.player = player;
@@ -427,7 +438,7 @@ function setupSocket(socket) {
 
     // Death.
     socket.on('RIP', function () {
-        global.gameStart = false;
+        global.game = false;
         global.died = true;
         window.setTimeout(function() {
             document.getElementById('gameAreaWrapper').style.opacity = 0;
@@ -455,7 +466,7 @@ function setupSocket(socket) {
 
 function startGame() {
     global.playerName = connectButton.textContent
-    global.playerSkin = skinCanvas
+    global.playerSkin = `<img src="${selectedSkin.src}"/>`
     global.screenWidth = window.innerWidth
     global.screenHeight = window.innerHeight
 
@@ -551,20 +562,25 @@ function drawPlayers(order) {
         skinCanvas.width = cellCurrent.radius
         skinCanvas.height = cellCurrent.radius
 
-        skinGraph.drawImage(img, cellCurrent.x, cellCurrent.y, img.height,img.width)
+        // graph.clearRect(cellCurrent.x, cellCurrent.y, cellCurrent.radius, cellCurrent.radius)
+ 
+
+        console.log(cellCurrent.x, cellCurrent.y)
+
+        const myImg = parser.parseFromString(userCurrent.skin, "text/html")
+        console.log(myImg)
 
 
-        graph.strokeStyle = 'hsl(' + userCurrent.hue + ', 100%, 45%)';
-        graph.fillStyle = graph.createPattern(skinCanvas, 'repeat')
+        skinGraph.strokeStyle = 'hsl(' + userCurrent.hue + ', 100%, 45%)';
+
+        graph.fillStyle = 'hsl(' + userCurrent.hue + ', 100%, 0%)';
         // graph.fillStyle = 'hsl(' + userCurrent.hue + ', 100%, 50%)';
         graph.lineWidth = playerConfig.border;
 
 
         // graph.strokeStyle = 'hsl(' + userCurrent.hue + ', 100%, 45%)';
         // console.log(cellCurrent.radius)
-        // skinCanvas.width = cellCurrent.radius
-        // skinCanvas.height = cellCurrent.radius
-        // skinGraph.drawImage(img, 0, 0, cellCurrent.radius, cellCurrent.width)
+
         // // console.log(skinGraph)
         // // console.log(userCurrent.hue)
 
@@ -609,22 +625,44 @@ function drawPlayers(order) {
         *if (wiggle <= player.radius / -3) inc = +1;
         *wiggle += inc;
         */
+
+
         for (i = 0; i < points; ++i) {
+            // if (i === 0) {
+            //     graph.beginPath();
+            //     graph.moveTo(xstore[i], ystore[i]);
+            // } else if (i > 0 && i < points - 1) {
+            //     graph.lineTo(xstore[i], ystore[i]);
+            // } else {
+            //     graph.lineTo(xstore[i], ystore[i]);
+            //     graph.lineTo(xstore[0], ystore[0]);
+            // }
             if (i === 0) {
-                graph.beginPath();
-                graph.moveTo(xstore[i], ystore[i]);
+                skinGraph.beginPath();
+                skinGraph.moveTo(xstore[i], ystore[i]);
             } else if (i > 0 && i < points - 1) {
-                graph.lineTo(xstore[i], ystore[i]);
+                skinGraph.lineTo(xstore[i], ystore[i]);
             } else {
-                graph.lineTo(xstore[i], ystore[i]);
-                graph.lineTo(xstore[0], ystore[0]);
+                skinGraph.lineTo(xstore[i], ystore[i]);
+                skinGraph.lineTo(xstore[0], ystore[0]);
             }
 
+            skinGraph.clip()
+
+
         }
-        graph.lineJoin = 'round';
-        graph.lineCap = 'round';
-        graph.fill();
-        // graph.stroke();
+
+        skinCanvas.width = cellCurrent.radius * 2
+        skinCanvas.height = cellCurrent.radius * 2
+        skinGraph.drawImage(nft, 0, 0,cellCurrent.radius  * 2,cellCurrent.radius * 2)
+        skinGraph.clip()
+
+
+
+        skinGraph.lineJoin = 'round';
+        skinGraph.lineCap = 'round';
+        // graph.fill();
+        skinGraph.stroke();
         var nameCell = "";
         if(typeof(userCurrent.id) == "undefined")
             nameCell = player.name;
@@ -632,26 +670,68 @@ function drawPlayers(order) {
             nameCell = userCurrent.name;
 
         var fontSize = Math.max(cellCurrent.radius / 3, 12);
-        graph.lineWidth = playerConfig.textBorderSize;
-        graph.fillStyle = playerConfig.textColor;
-        graph.strokeStyle = playerConfig.textBorder;
-        graph.miterLimit = 1;
-        graph.lineJoin = 'round';
-        graph.textAlign = 'center';
-        graph.textBaseline = 'middle';
-        graph.font = 'bold ' + fontSize + 'px sans-serif';
+        skinGraph.lineWidth = playerConfig.textBorderSize;
+        skinGraph.fillStyle = playerConfig.textColor;
+        skinGraph.strokeStyle = playerConfig.textBorder;
+        skinGraph.miterLimit = 1;
+        skinGraph.lineJoin = 'round';
+        skinGraph.textAlign = 'center';
+        skinGraph.textBaseline = 'middle';
+        skinGraph.font = 'bold ' + fontSize + 'px sans-serif';
 
         if (global.toggleMassState === 0) {
-            graph.strokeText(nameCell, circle.x, circle.y);
-            graph.fillText(nameCell, circle.x, circle.y);
+            skinGraph.strokeText(nameCell, circle.x, circle.y);
+            skinGraph.fillText(nameCell, circle.x, circle.y);
         } else {
-            graph.strokeText(nameCell, circle.x, circle.y);
-            graph.fillText(nameCell, circle.x, circle.y);
-            graph.font = 'bold ' + Math.max(fontSize / 3 * 2, 10) + 'px sans-serif';
+            skinGraph.strokeText(nameCell, circle.x, circle.y);
+            skinGraph.fillText(nameCell, circle.x, circle.y);
+            skinGraph.font = 'bold ' + Math.max(fontSize / 3 * 2, 10) + 'px sans-serif';
             if(nameCell.length === 0) fontSize = 0;
-            graph.strokeText(Math.round(cellCurrent.mass), circle.x, circle.y+fontSize);
-            graph.fillText(Math.round(cellCurrent.mass), circle.x, circle.y+fontSize);
+            skinGraph.strokeText(Math.round(cellCurrent.mass), circle.x, circle.y+fontSize);
+            skinGraph.fillText(Math.round(cellCurrent.mass), circle.x, circle.y+fontSize);
         }
+
+        graph.drawImage(skinCanvas, circle.x - cellCurrent.radius, circle.y - cellCurrent.radius,cellCurrent.radius  * 2,cellCurrent.radius * 2)
+
+
+        // skinGraph.clip()
+
+
+
+
+
+        // graph.lineJoin = 'round';
+        // graph.lineCap = 'round';
+        // // graph.fill();
+        // graph.stroke();
+        // graph.restore()
+        // var nameCell = "";
+        // if(typeof(userCurrent.id) == "undefined")
+        //     nameCell = player.name;
+        // else
+        //     nameCell = userCurrent.name;
+
+        // var fontSize = Math.max(cellCurrent.radius / 3, 12);
+        // graph.lineWidth = playerConfig.textBorderSize;
+        // graph.fillStyle = playerConfig.textColor;
+        // graph.strokeStyle = playerConfig.textBorder;
+        // graph.miterLimit = 1;
+        // graph.lineJoin = 'round';
+        // graph.textAlign = 'center';
+        // graph.textBaseline = 'middle';
+        // graph.font = 'bold ' + fontSize + 'px sans-serif';
+
+        // if (global.toggleMassState === 0) {
+        //     graph.strokeText(nameCell, circle.x, circle.y);
+        //     graph.fillText(nameCell, circle.x, circle.y);
+        // } else {
+        //     graph.strokeText(nameCell, circle.x, circle.y);
+        //     graph.fillText(nameCell, circle.x, circle.y);
+        //     graph.font = 'bold ' + Math.max(fontSize / 3 * 2, 10) + 'px sans-serif';
+        //     if(nameCell.length === 0) fontSize = 0;
+        //     graph.strokeText(Math.round(cellCurrent.mass), circle.x, circle.y+fontSize);
+        //     graph.fillText(Math.round(cellCurrent.mass), circle.x, circle.y+fontSize);
+        // }
     }
 }
 
