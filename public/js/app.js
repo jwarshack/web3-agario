@@ -72,6 +72,10 @@ function closeModal() {
 
 }
 
+let connectButton = document.getElementById('connect-btn')
+
+
+
 let global = {
     // Keys and other mathematical constants
     KEY_ESC: 27,
@@ -410,7 +414,7 @@ function setupSocket(socket) {
 }
 
 function startGame() {
-    global.playerName = "Bob"
+    global.playerName = connectButton.textContent
     global.screenWidth = window.innerWidth
     global.screenHeight = window.innerHeight
 
@@ -497,8 +501,13 @@ function drawPlayers(order) {
         var increase = Math.PI * 2 / points;
 
         graph.strokeStyle = 'hsl(' + userCurrent.hue + ', 100%, 45%)';
-        graph.fillStyle = 'hsl(' + userCurrent.hue + ', 100%, 50%)';
-        graph.lineWidth = playerConfig.border;
+        let skin = new Image()
+        skin.src = "https://gateway.pinata.cloud/ipfs/QmPpWaMDMV8jRfu5pmF4qvaZYswyuiXx7EPJuDpjd569zH"
+        let img = document.getElementById('nft')
+        let pat = graph.createPattern(img, 'no-repeat')
+        graph.fillStyle = pat
+        // graph.fillStyle = 'hsl(' + userCurrent.hue + ', 100%, 50%)';
+        // graph.lineWidth = playerConfig.border;
 
         var xstore = [];
         var ystore = [];
@@ -548,7 +557,7 @@ function drawPlayers(order) {
         graph.lineJoin = 'round';
         graph.lineCap = 'round';
         graph.fill();
-        graph.stroke();
+        // graph.stroke();
         var nameCell = "";
         if(typeof(userCurrent.id) == "undefined")
             nameCell = player.name;
@@ -758,8 +767,8 @@ function resize() {
 
 document.querySelector("#start").addEventListener('click', startGame)
 
+connectButton.addEventListener('click', connectWallet)
 
-document.getElementById('connect-btn').addEventListener('click', connectWallet)
 document.querySelector('#skin-btn').addEventListener('click', fetchNFTs)
 
 
