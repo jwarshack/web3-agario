@@ -74,6 +74,9 @@ function closeModal() {
 
 let connectButton = document.getElementById('connect-btn')
 
+let img = document.getElementById('nft')
+
+
 
 
 let global = {
@@ -297,6 +300,8 @@ window.canvas = new Canvas();
 
 let c = window.canvas.cv;
 let graph = c.getContext('2d');
+let skinCanvas
+let skinGraph
 
 function setupSocket(socket) {
 
@@ -320,9 +325,15 @@ function setupSocket(socket) {
 
     // Handle connection.
     socket.on('welcome', function (playerSettings) {
+
+        skinCanvas = document.getElementById('skin')
+        console.log(skinCanvas)
+        skinGraph = skinCanvas.getContext("2d")
+
         player = playerSettings;
         player.name = global.playerName;
         player.screenWidth = global.screenWidth;
+        player.skin = skinCanvas
         player.screenHeight = global.screenHeight;
         player.target = window.canvas.target;
         global.player = player;
@@ -415,6 +426,7 @@ function setupSocket(socket) {
 
 function startGame() {
     global.playerName = connectButton.textContent
+    global.playerSkin = skinCanvas
     global.screenWidth = window.innerWidth
     global.screenHeight = window.innerHeight
 
@@ -483,6 +495,11 @@ function drawFireFood(mass) {
                mass.radius-5, 18 + (~~(mass.masa/5)));
 }
 
+function resizeSkin(radius) {
+    img.style.width = radius + 'px'
+    img.style.height = radius + 'px'
+}
+
 function drawPlayers(order) {
     var start = {
         x: player.x - (global.screenWidth / 2),
@@ -500,14 +517,32 @@ function drawPlayers(order) {
         var points = 30 + ~~(cellCurrent.mass/5);
         var increase = Math.PI * 2 / points;
 
+        resizeSkin(cellCurrent.radius)
+
+        console.log(img.width)
+        console.log('hey')
+
         graph.strokeStyle = 'hsl(' + userCurrent.hue + ', 100%, 45%)';
-        let skin = new Image()
-        skin.src = "https://gateway.pinata.cloud/ipfs/QmPpWaMDMV8jRfu5pmF4qvaZYswyuiXx7EPJuDpjd569zH"
-        let img = document.getElementById('nft')
-        let pat = graph.createPattern(img, 'no-repeat')
-        graph.fillStyle = pat
+        graph.fillStyle = graph.createPattern(img, 'no-repeat')
         // graph.fillStyle = 'hsl(' + userCurrent.hue + ', 100%, 50%)';
-        // graph.lineWidth = playerConfig.border;
+        graph.lineWidth = playerConfig.border;
+
+
+        // graph.strokeStyle = 'hsl(' + userCurrent.hue + ', 100%, 45%)';
+        // console.log(cellCurrent.radius)
+        // skinCanvas.width = cellCurrent.radius
+        // skinCanvas.height = cellCurrent.radius
+        // skinGraph.drawImage(img, 0, 0, cellCurrent.radius, cellCurrent.width)
+        // // console.log(skinGraph)
+        // // console.log(userCurrent.hue)
+
+        // let drawnImg = graph.drawImage(img, 0, 0, cellCurrent.radius, cellCurrent.radius)
+        // console.log('drawn', drawnImg)
+
+        // // skin = graph.drawImage(img, 0, 0, cellCurrent.radius, cellCurrent.radius)
+        // graph.fillStyle = graph.createPattern(drawnImg, 'no-repeat')
+        // // graph.fillStyle = 'hsl(' + userCurrent.hue + ', 100%, 50%)';
+        // // graph.lineWidth = playerConfig.border;
 
         var xstore = [];
         var ystore = [];

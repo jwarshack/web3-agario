@@ -103,3 +103,16 @@ html, body, canvas {
     margin-left: auto;
     margin-right: auto;
 }
+#nft {
+    width: 10px;
+    height: 10px;
+}
+
+#skin {
+    top: 0;
+    left: 0;
+    width: 100px;
+    height: 100px;
+    z-index: 100;
+    position: absolute;
+}

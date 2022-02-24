@@ -275,7 +275,7 @@ io.on('connection', socket => {
             }];
             player.massTotal = c.defaultPlayerMass;
 
-            player.hue = Math.round(Math.random() * 360);
+            player.hue = player.hue;
             currentPlayer = player;
             currentPlayer.lastHeartbeat = new Date().getTime();
             users.push(currentPlayer);
