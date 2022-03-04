@@ -471,16 +471,43 @@ function setupSocket(socket) {
         console.log(player.name, player.skin)
         let playerCanvas = document.createElement('canvas')
         playerCanvas.classList.add('player-canvas')
+        playerCanvas.width = playerConfig.defaultSize
+        playerCanvas.height = playerConfig.defaultSize
         playerGraph = playerCanvas.getContext('2d')
         gameWrapper.appendChild(playerCanvas)
+
+        console.log(player)
+
+        // playerGraph.beginPath();
+
+        // let sides = 4
+
+        // for (var i = 0; i < sides; i++) {
+        //     let theta = (i / sides) * 2 * Math.PI;
+        //     let x = global.player.target.x + playerConfig.defaultSize / 2 * Math.sin(theta);
+        //     let y = global.player.target.y + playerConfig.defaultSize / 2 * Math.cos(theta);
+        //     playerGraph.lineTo(x, y);
+        // }
     
+        // playerGraph.closePath();
+        // playerGraph.stroke();
+        // playerGraph.fill();
+        // playerGraph.clip()
+
         let skinImg = new Image()
         skinImg.src = player.skin
+        skinImg.width = 30
+        skinImg.height = 30
 
         skinImg.onload = function() {
-            playerGraph.drawImage(skinImg, 0, 0)
+            playerGraph.isSmoothingEnabled = false
+
+            playerGraph.drawImage(skinImg, 0, 0, playerConfig.defaultSize, playerConfig.defaultSize)
         }
-        
+
+
+    
+
 
     })
 
@@ -663,6 +690,12 @@ function drawPlayers(order) {
                 y: cellCurrent.y - start.y
             };
 
+            let node = userNodes[order[z].nCell]
+            // console.log(node)
+
+            node.x = circle.x
+            node.y = circle.y
+
             // userNodes.forEach((node) => {
             //     node.
             // })
@@ -679,7 +712,9 @@ function drawPlayers(order) {
             graph.strokeStyle = 'hsl(' + userCurrent.hue + ', 100%, 45%)';
             graph.fillStyle = 'hsl(' + userCurrent.hue + ', 100%, 50%)';
             graph.lineWidth = playerConfig.border;
-    
+
+            graph.drawImage(node, circle.x - cellCurrent.radius, circle.y - cellCurrent.radius, cellCurrent.radius * 2, cellCurrent.radius * 2)
+
             
             
     
@@ -723,8 +758,8 @@ function drawPlayers(order) {
 
             graph.lineJoin = 'round';
             graph.lineCap = 'round';
-            graph.fill();
-            graph.stroke();
+            // graph.fill();
+            // graph.stroke();
             var nameCell = "";
             if(typeof(userCurrent.id) == "undefined")
                 nameCell = player.name;
