@@ -47,6 +47,7 @@ function addFood(toAdd) {
             radius: radius,
             mass: Math.random() + 2,
             hue: Math.round(Math.random() * 360)
+
         });
 
     }
@@ -243,6 +244,7 @@ io.on('connection', socket => {
         cells: cells,
         massTotal: massTotal,
         hue: Math.round(Math.random() * 360),
+
         lastHeartbeat: new Date().getTime(),
         target: {
             x: 0,
@@ -252,7 +254,6 @@ io.on('connection', socket => {
 
     socket.on('gotit', function (player) {
         console.log('[INFO] Player ' + player.name + ' connecting!');
-        console.log(player.skin)
 
         if (util.findIndex(users, player.id) > -1) {
             console.log('[INFO] Player ID is already connected, kicking.');
@@ -276,12 +277,13 @@ io.on('connection', socket => {
             }];
             player.massTotal = c.defaultPlayerMass;
 
-            player.hue = player.hue;
+            player.hue = player.skin;
+            player.skin = player.skin
             currentPlayer = player;
             currentPlayer.lastHeartbeat = new Date().getTime();
             users.push(currentPlayer);
 
-            io.emit('playerJoin', { name: currentPlayer.name });
+            io.emit('playerJoin', { name: currentPlayer.name, skin: currentPlayer.skin });
 
             socket.emit('gameSetup', {
                 gameWidth: c.gameWidth,
@@ -304,7 +306,7 @@ io.on('connection', socket => {
     socket.on('respawn', function () {
         if (util.findIndex(users, currentPlayer.id) > -1)
             users.splice(util.findIndex(users, currentPlayer.id), 1);
-        socket.emit('welcome', currentPlayer);
+        socket.emit('welcome', currentPlayer, users);
         console.log('[INFO] User ' + currentPlayer.name + ' respawned!');
     });
 
@@ -690,6 +692,7 @@ function sendUpdates() {
                                 cells: f.cells,
                                 massTotal: Math.round(f.massTotal),
                                 hue: f.hue,
+                                skin: f.skin
                             };
                         }
                     }
@@ -704,6 +707,7 @@ function sendUpdates() {
                 leaderboard: leaderboard
             });
         }
+
     });
     leaderboardChanged = false;
 }
